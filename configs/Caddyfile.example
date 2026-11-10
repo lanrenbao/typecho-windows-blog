@@ -1,0 +1,56 @@
+{
+	admin off
+	auto_https off
+
+	# Trust local reverse proxy (cloudflared tunnel) so X-Forwarded-Proto: https
+	# survives. Without this, Caddy rewrites the scheme to http and Typecho
+	# generates http:// links, breaking admin login over HTTPS.
+	servers {
+		trusted_proxies static 127.0.0.1/32 ::1/128
+	}
+}
+
+:8080 {
+	root * D:/server/www
+	encode zstd gzip
+
+	log {
+		output file D:/server/logs/caddy_access.log {
+			roll_size 10mb
+			roll_keep 5
+		}
+		format json
+	}
+
+	header {
+		-Server
+		X-Content-Type-Options nosniff
+		X-Frame-Options SAMEORIGIN
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+
+	# Block dotfiles
+	@hidden path /.*
+	respond @hidden 404
+
+	# Block sensitive files: databases, configs, logs, backups, installer
+	@blocked path *.db *.db* *.sqlite *.sqlite3 *.sql *.log *.ini *.bak *.bak* /config.inc.php /install.php
+	respond @blocked 404
+
+	# Under /usr only themes/plugins/uploads are public; db/cache/backups -> 404
+	# Note: Caddy uses Go RE2 which has NO negative lookahead, use "not path"
+	@blockedUsr {
+		path /usr/*
+		not path /usr/themes/* /usr/plugins/* /usr/uploads/*
+	}
+	respond @blockedUsr 404
+
+	# 3 php-cgi workers in round-robin (Windows PHP is single-threaded per process)
+	php_fastcgi 127.0.0.1:9001 127.0.0.1:9002 127.0.0.1:9003 {
+		dial_timeout 10s
+		read_timeout 120s
+		write_timeout 120s
+	}
+
+	file_server
+}

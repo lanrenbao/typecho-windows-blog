@@ -1,0 +1,24 @@
+# Logs and runtime state
+logs/
+*.log
+tools/current-url.txt
+
+# Binaries downloaded by install.ps1 (re-downloadable from official sources)
+php/
+caddy/
+cloudflared/cloudflared.exe
+
+# Site data — never commit user content or databases
+www/
+backups/
+*.db
+*.db.bak*
+*.sqlite
+
+# Cloudflare credentials — NEVER commit these
+*.pem
+*.json
+!package.json
+
+# pm2
+.pm2/

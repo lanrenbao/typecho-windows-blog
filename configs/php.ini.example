@@ -1,0 +1,67 @@
+[PHP]
+engine = On
+short_open_tag = Off
+precision = 14
+output_buffering = 4096
+zlib.output_compression = Off
+implicit_flush = Off
+serialize_precision = -1
+disable_functions =
+zend.enable_gc = On
+expose_php = Off
+max_execution_time = 120
+max_input_time = 120
+memory_limit = 192M
+error_reporting = E_ALL & ~E_DEPRECATED & ~E_NOTICE
+display_errors = Off
+log_errors = On
+error_log = "D:\server\logs\php_error.log"
+post_max_size = 32M
+upload_max_filesize = 24M
+max_file_uploads = 20
+default_charset = "UTF-8"
+default_mimetype = "text/html"
+allow_url_fopen = On
+file_uploads = On
+
+extension_dir = "D:\server\php\ext"
+
+; FastCGI (php-cgi) mode
+cgi.fix_pathinfo = 1
+cgi.force_redirect = 0
+
+; CA bundle for outbound HTTPS (plugin update check, sync scripts)
+curl.cainfo = "D:\server\php\cacert.pem"
+openssl.cafile = "D:\server\php\cacert.pem"
+
+extension=curl
+extension=fileinfo
+extension=gd
+extension=mbstring
+extension=openssl
+extension=pdo_sqlite
+extension=sqlite3
+extension=exif
+extension=sodium
+
+[Date]
+date.timezone = Asia/Shanghai
+
+[Session]
+; MUST be set to a writable directory, otherwise admin login token check fails
+session.save_handler = files
+session.save_path = "D:\server\tmp\sessions"
+session.use_strict_mode = 1
+session.use_cookies = 1
+session.use_only_cookies = 1
+session.cookie_httponly = 1
+session.lazy_write = On
+
+[opcache]
+zend_extension=opcache
+opcache.enable=1
+opcache.memory_consumption=64
+opcache.interned_strings_buffer=8
+opcache.max_accelerated_files=4000
+opcache.validate_timestamps=1
+opcache.revalidate_freq=2

@@ -1,0 +1,36 @@
+@echo off
+:: Idempotent startup script, invoked by the scheduled task at logon
+:: and by the healthcheck script when the site is down.
+setlocal enabledelayedexpansion
+
+:: -- CONFIGURE THESE TWO LINES FOR YOUR MACHINE -----------------------------
+:: Node dir containing pm2.cmd (npm install -g pm2). Example:
+::   set "NODEDIR=C:\Program Files\nodejs"
+set "NODEDIR="
+:: pm2 home (default is fine for most users)
+set "PM2_HOME=%USERPROFILE%\.pm2"
+:: ---------------------------------------------------------------------------
+set "PM2=%NODEDIR%\pm2.cmd"
+set "ROOT=D:\server"
+set "PATH=%NODEDIR%;%PATH%"
+set "LOG=%ROOT%\logs\startup.log"
+
+if not exist "%ROOT%\logs" mkdir "%ROOT%\logs"
+cd /d "%ROOT%"
+echo [%date% %time%] === start requested === >> "%LOG%"
+
+if "%NODEDIR%"=="" (
+  echo [%date% %time%] ERROR: edit this script and set NODEDIR first >> "%LOG%"
+  exit /b 1
+)
+if not exist "%PM2%" (
+  echo [%date% %time%] ERROR: pm2.cmd not found at %PM2% >> "%LOG%"
+  exit /b 1
+)
+
+call "%PM2%" startOrRestart "%ROOT%\ecosystem.config.js" --update-env >> "%LOG%" 2>&1
+call "%PM2%" save >> "%LOG%" 2>&1
+
+echo [%date% %time%] === start done === >> "%LOG%"
+endlocal
+exit /b 0
